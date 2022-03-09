@@ -29,16 +29,20 @@ module.exports.split_payment = async (req, res) => {
         res
           .status(400)
           .json({ message: `${title} (${amount}) is lesser than 0` });
+        res.end();
       }
     };
 
     // Check Split Amount Errors
     const splitAmountErrorCheck = (title, amount) => {
       checkAmount(title, amount);
-      if(amount > Amount){
+      if (amount > Amount) {
         res
-        .status(400)
-        .json({ message: `${title} (${amount}) is greater than transactional amount (${Amount})` });
+          .status(400)
+          .json({
+            message: `${title} (${amount}) is greater than transactional amount (${Amount})`
+          });
+        res.end();
       }
     };
 
@@ -46,6 +50,7 @@ module.exports.split_payment = async (req, res) => {
     const SplitBreakdown = [];
     let balance = Amount;
     let totalRatioBalance;
+    let totalRatio;
 
     //Main loop for Split Info
     try {
@@ -72,8 +77,8 @@ module.exports.split_payment = async (req, res) => {
           //   Check Error
           splitAmountErrorCheck("Split Amount", infoData.Amount);
         } else {
-          let totalRatio = getRatioTotal(SplitInfo);
           if (index === firstRatioIndex) {
+            totalRatio = getRatioTotal(SplitInfo);
             totalRatioBalance = balance;
           }
           let splitAmount = (info.SplitValue / totalRatio) * totalRatioBalance;
@@ -86,8 +91,18 @@ module.exports.split_payment = async (req, res) => {
         SplitBreakdown.push(infoData);
       });
 
-      //Balance Error Checks
+      //Balance Error Check
       checkAmount("Final Balance", balance);
+
+    //   Split Amount Total Error Check
+    let splitAmountTotal = SplitBreakdown.reduce((a, b) => a["SplitValue"] + b["SplitValue"]);
+
+    if(splitAmountTotal > Amount){
+        res
+          .status(400)
+          .json({ message: `The sum of all split Amount values computed (${splitAmountTotal}) is greater than the Transaction Amount (${Amount})` });
+        res.end();
+    }
 
       // Create and send response
       const response = { ID, balance, SplitBreakdown };
