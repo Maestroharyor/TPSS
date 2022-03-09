@@ -1,0 +1,18 @@
+{
+  "name": "tpss",
+  "version": "1.0.0",
+  "description": "A NODEJS test API for Lannister",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "express-validator": "^6.14.0",
+    "nodemon": "^2.0.15",
+    "sort-array": "^4.1.5"
+  }
+}
